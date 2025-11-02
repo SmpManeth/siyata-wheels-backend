@@ -32,6 +32,7 @@ jobs:
         timeout_minutes : 3
         max_attempts : 5
         log-level: verbose
+        server-dir: system.siyatawheels.com/
 
     - name: Check website status
       run: curl -I https://system.siyatawheels.com
