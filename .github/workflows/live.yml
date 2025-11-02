@@ -1,0 +1,37 @@
+on:
+  push:
+    branches:
+      - main
+name: Deploy to the Production Environment on main Branch
+jobs:
+  web-deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    steps:
+    - name: Get latest code
+      uses: actions/checkout@v2
+
+    - name: Use Production env
+      run: cp env.production .env
+        
+    - name: Install vendors
+      run: |
+          composer install --prefer-dist --no-dev --optimize-autoloader
+          php artisan route:clear
+          rm -rf node_modules package-lock.json
+          npm install
+          npm run build
+          npm ci --no-optional
+
+    - name: Sync files
+      uses: SamKirkland/FTP-Deploy-Action@4.3.3
+      with:
+        server: ams1-shared-02.dreamhost.com
+        username: dh_nizc2j
+        password: Ovindu@2001722
+        timeout_minutes : 3
+        max_attempts : 5
+        log-level: verbose
+
+    - name: Check website status
+      run: curl -I https://system.siyatawheels.com

@@ -23,21 +23,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->appendToGroup('api', [
             HandleCors::class,
         ]);
-        // 👇 Define rate limiter before using it
-        RateLimiter::for('api', function (Request $request) {
-            // 60 requests per minute per IP (change limits if needed)
-            return \Illuminate\Cache\RateLimiting\Limit::perMinute(60)->by(
-                $request->user()?->id ?: $request->ip()
-            );
-        });
 
-        // 👇 API group (uses the limiter above)
         $middleware->group('api', [
             EnsureFrontendRequestsAreStateful::class,
-            ThrottleRequests::class . ':api',
             SubstituteBindings::class,
-        ]);
 
+        ]);
         // 👇 Route middleware aliases
         $middleware->alias([
             'auth'         => Authenticate::class,
